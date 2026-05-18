@@ -1,0 +1,9 @@
+environment         = "qa"
+region              = "us-east-1"
+vpc_cidr            = "10.40.0.0/16"
+availability_zones  = ["us-east-1a", "us-east-1b"]
+db_instance_class   = "db.t4g.small"
+db_multi_az         = false
+node_instance_types = ["t3.medium"]
+node_desired_size   = 2
+node_max_size       = 2

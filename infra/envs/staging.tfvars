@@ -1,0 +1,9 @@
+environment         = "staging"
+region              = "us-east-1"
+vpc_cidr            = "10.30.0.0/16"
+availability_zones  = ["us-east-1a", "us-east-1b"]
+db_instance_class   = "db.t4g.medium"
+db_multi_az         = false
+node_instance_types = ["t3.large"]
+node_desired_size   = 2
+node_max_size       = 3

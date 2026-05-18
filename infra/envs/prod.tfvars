@@ -1,0 +1,9 @@
+environment         = "prod"
+region              = "us-east-1"
+vpc_cidr            = "10.20.0.0/16"
+availability_zones  = ["us-east-1a", "us-east-1b", "us-east-1c"]
+db_instance_class   = "db.r6g.large"
+db_multi_az         = true
+node_instance_types = ["m6i.large"]
+node_desired_size   = 3
+node_max_size       = 8
