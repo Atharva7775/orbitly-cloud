@@ -1,4 +1,4 @@
--- Orbitly production schema (Postgres 16), as of migration 0002_orders_payments.
+-- Orbitly production schema (Postgres 16), as of migration 0003_cart.
 -- Generated from db/migrations/ and kept in review so DBAs can diff schema changes.
 -- orbitly-backend applies the same files from its migrations/ directory.
 
@@ -74,3 +74,11 @@ CREATE TABLE payments (
     created_at        timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX payments_order_id_idx ON payments (order_id);
+
+CREATE TABLE cart_items (
+    user_id     uuid NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    product_id  uuid NOT NULL REFERENCES products (id),
+    quantity    integer NOT NULL CHECK (quantity BETWEEN 1 AND 20),
+    added_at    timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, product_id)
+);
