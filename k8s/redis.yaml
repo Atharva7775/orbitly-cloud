@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: orbitly-redis
+  namespace: orbitly
+spec:
+  serviceName: orbitly-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: orbitly-redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: orbitly-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.4-alpine
+          args: ["--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+          ports:
+            - name: redis
+              containerPort: 6379
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orbitly-redis
+  namespace: orbitly
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: orbitly-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
