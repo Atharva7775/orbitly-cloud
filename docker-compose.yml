@@ -1,0 +1,102 @@
+# Full local stack. Expects the app repos checked out next to this one:
+#   ../orbitly-frontend  ../orbitly-backend  ./orbitly-cloud
+name: orbitly
+
+x-backend-env: &backend-env
+  ORBITLY_ENV: development
+  DATABASE_URL: postgresql+psycopg://orbitly:orbitly@postgres:5432/orbitly
+  REDIS_URL: redis://redis:6379/0
+  CORS_ORIGINS: http://localhost:3000
+  PAYMENTS_API_URL: https://sandbox.paystream-gateway.example
+  PAYMENTS_API_KEY: ${PAYMENTS_API_KEY:-}
+  SMTP_HOST: mailpit
+  SMTP_PORT: "1025"
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: orbitly
+      POSTGRES_PASSWORD: orbitly
+      POSTGRES_DB: orbitly
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbitly -d orbitly"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.20
+    ports:
+      - "8025:8025"
+
+  migrate:
+    image: ghcr.io/atharva7775/orbitly-backend:${ORBITLY_TAG:-1.0.0}
+    build: ../orbitly-backend
+    command: ["python", "-m", "app.migrate"]
+    environment: *backend-env
+    depends_on:
+      - postgres
+
+  seed:
+    image: postgres:16.4-alpine
+    command: ["psql", "postgresql://orbitly:orbitly@postgres:5432/orbitly", "-f", "/seed/seed.sql"]
+    volumes:
+      - ./db/seed.sql:/seed/seed.sql:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  backend:
+    image: ghcr.io/atharva7775/orbitly-backend:${ORBITLY_TAG:-1.0.0}
+    build: ../orbitly-backend
+    environment: *backend-env
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  worker:
+    image: ghcr.io/atharva7775/orbitly-backend:${ORBITLY_TAG:-1.0.0}
+    build: ../orbitly-backend
+    command: ["python", "-m", "app.workers.runner"]
+    environment: *backend-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  frontend:
+    image: ghcr.io/atharva7775/orbitly-frontend:${ORBITLY_TAG:-1.0.0}
+    build:
+      context: ../orbitly-frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

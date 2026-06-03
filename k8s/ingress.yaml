@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: orbitly
+  namespace: orbitly
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-body-size: "2m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [shop.orbitly.example, api.orbitly.example]
+      secretName: orbitly-tls
+  rules:
+    - host: shop.orbitly.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: orbitly-frontend
+                port:
+                  name: http
+    - host: api.orbitly.example
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: orbitly-backend
+                port:
+                  name: http
+          - path: /healthz
+            pathType: Exact
+            backend:
+              service:
+                name: orbitly-backend
+                port:
+                  name: http
