@@ -1,0 +1,79 @@
+# Infrastructure pipeline. Runs on the platform team's GitLab mirror of this
+# repository; application images are built by GitHub Actions in the app repos.
+stages:
+  - validate
+  - plan
+  - apply
+  - deploy
+
+variables:
+  TF_ROOT: infra
+  TF_IN_AUTOMATION: "true"
+  KUBECTL_VERSION: "1.30.4"
+
+.terraform:
+  image:
+    name: hashicorp/terraform:1.9.8
+    entrypoint: [""]
+  before_script:
+    - cd "$TF_ROOT"
+    - terraform init -input=false -backend-config="envs/${ENVIRONMENT}.backend.hcl"
+  cache:
+    key: terraform-$ENVIRONMENT
+    paths:
+      - $TF_ROOT/.terraform
+
+.env_from_branch:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      variables: { ENVIRONMENT: "prod" }
+    - if: $CI_COMMIT_BRANCH == "staging"
+      variables: { ENVIRONMENT: "staging" }
+    - if: $CI_COMMIT_BRANCH == "qa"
+      variables: { ENVIRONMENT: "qa" }
+
+fmt:
+  stage: validate
+  image:
+    name: hashicorp/terraform:1.9.8
+    entrypoint: [""]
+  script:
+    - terraform -chdir="$TF_ROOT" fmt -check -recursive
+    - terraform -chdir="$TF_ROOT" init -backend=false -input=false
+    - terraform -chdir="$TF_ROOT" validate
+
+plan:
+  stage: plan
+  extends: [.terraform, .env_from_branch]
+  script:
+    - terraform plan -input=false -var-file="envs/${ENVIRONMENT}.tfvars" -out=plan.tfplan
+  artifacts:
+    paths:
+      - $TF_ROOT/plan.tfplan
+    expire_in: 1 week
+
+apply:
+  stage: apply
+  extends: [.terraform, .env_from_branch]
+  script:
+    - terraform apply -input=false plan.tfplan
+  environment:
+    name: $ENVIRONMENT
+  when: manual
+  needs: [plan]
+
+k8s:
+  stage: deploy
+  extends: .env_from_branch
+  image:
+    name: bitnami/kubectl:$KUBECTL_VERSION
+    entrypoint: [""]
+  script:
+    - echo "$KUBE_CONFIG" | base64 -d > /tmp/kubeconfig
+    - export KUBECONFIG=/tmp/kubeconfig
+    - kubectl apply -k k8s/
+    - kubectl -n orbitly rollout status deployment/orbitly-backend --timeout=300s
+    - kubectl -n orbitly rollout status deployment/orbitly-frontend --timeout=180s
+  environment:
+    name: $ENVIRONMENT
+  needs: [apply]
