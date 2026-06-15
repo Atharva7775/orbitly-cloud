@@ -37,6 +37,11 @@ resource "aws_db_parameter_group" "this" {
     name  = "log_min_duration_statement"
     value = "500"
   }
+
+  parameter {
+    name  = "rds.force_ssl"
+    value = "1"
+  }
 }
 
 resource "aws_db_instance" "this" {
