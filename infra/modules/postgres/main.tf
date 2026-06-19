@@ -37,6 +37,11 @@ resource "aws_db_parameter_group" "this" {
     name  = "log_min_duration_statement"
     value = "500"
   }
+
+  parameter {
+    name  = "rds.force_ssl"
+    value = "1"
+  }
 }
 
 resource "aws_db_instance" "this" {
@@ -56,6 +61,7 @@ resource "aws_db_instance" "this" {
   vpc_security_group_ids       = [aws_security_group.db.id]
   parameter_group_name         = aws_db_parameter_group.this.name
   backup_retention_period      = 14
+  deletion_protection          = true
   skip_final_snapshot          = false
   final_snapshot_identifier    = "${var.name}-final"
   performance_insights_enabled = true

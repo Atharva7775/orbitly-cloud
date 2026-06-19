@@ -9,7 +9,7 @@ output "port" {
 output "database_url" {
   description = "postgresql+psycopg URL in the format orbitly-backend expects for DATABASE_URL."
   value = format(
-    "postgresql+psycopg://%s:%s@%s:%d/%s",
+    "postgresql+psycopg://%s:%s@%s:%d/%s?sslmode=require",
     var.username,
     random_password.master.result,
     aws_db_instance.this.address,
