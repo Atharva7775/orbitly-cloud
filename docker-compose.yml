@@ -51,7 +51,8 @@ services:
     command: ["python", "-m", "app.migrate"]
     environment: *backend-env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   seed:
     image: postgres:16.4-alpine
