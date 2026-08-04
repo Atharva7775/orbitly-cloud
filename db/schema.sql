@@ -1,4 +1,4 @@
--- Orbitly production schema (Postgres 16), as of migration 0003_cart.
+-- Orbitly production schema (Postgres 16), as of migration 0004_token_sessions.
 -- Generated from db/migrations/ and kept in review so DBAs can diff schema changes.
 -- orbitly-backend applies the same files from its migrations/ directory.
 
@@ -27,14 +27,17 @@ CREATE INDEX products_created_at_idx ON products (created_at DESC);
 CREATE INDEX products_name_lower_idx ON products (lower(name));
 
 CREATE TABLE sessions (
-    id              varchar(64) PRIMARY KEY,
-    user_id         uuid NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    data            jsonb NOT NULL DEFAULT '{}'::jsonb,
-    created_at      timestamptz NOT NULL DEFAULT now(),
-    expires_at      timestamptz NOT NULL
+    id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     uuid NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    token_hash  char(64) NOT NULL UNIQUE,
+    user_agent  varchar(300),
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    expires_at  timestamptz NOT NULL,
+    revoked_at  timestamptz,
+    metadata    jsonb NOT NULL DEFAULT '{}'::jsonb
 );
 CREATE INDEX sessions_user_id_idx ON sessions (user_id);
-CREATE INDEX sessions_expires_at_idx ON sessions (expires_at);
+CREATE INDEX sessions_expires_at_idx ON sessions (expires_at) WHERE revoked_at IS NULL;
 
 CREATE TABLE orders (
     id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),

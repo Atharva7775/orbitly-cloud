@@ -7,7 +7,6 @@ data:
   ORBITLY_ENV: "production"
   REDIS_URL: "redis://orbitly-redis:6379/0"
   SESSION_TTL_MINUTES: "720"
-  SESSION_COOKIE_DOMAIN: ".orbitly.example"
   BCRYPT_ROUNDS: "12"
   CORS_ORIGINS: "https://shop.orbitly.example"
   PAYMENTS_API_URL: "https://api.paystream-gateway.example"
