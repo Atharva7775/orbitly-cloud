@@ -7,7 +7,7 @@ stages:
   - deploy
 
 variables:
-  TF_ROOT: infra
+  TF_ROOT: terraform
   TF_IN_AUTOMATION: "true"
   KUBECTL_VERSION: "1.30.4"
 
