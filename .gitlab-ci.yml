@@ -42,6 +42,27 @@ fmt:
     - terraform -chdir="$TF_ROOT" init -backend=false -input=false
     - terraform -chdir="$TF_ROOT" validate
 
+kubeconform:
+  stage: validate
+  image:
+    name: ghcr.io/yannh/kubeconform:v0.6.7
+    entrypoint: [""]
+  script:
+    - /kubeconform -strict -summary -ignore-filename-pattern kustomization.yaml k8s/
+
+sql-lint:
+  stage: validate
+  image: postgres:16.4-alpine
+  services:
+    - name: postgres:16.4-alpine
+      alias: db
+  variables:
+    POSTGRES_PASSWORD: ci
+    PGPASSWORD: ci
+  script:
+    - for f in db/migrations/*.sql; do psql -h db -U postgres -v ON_ERROR_STOP=1 -f "$f"; done
+    - psql -h db -U postgres -v ON_ERROR_STOP=1 -f db/seed.sql
+
 plan:
   stage: plan
   extends: [.terraform, .env_from_branch]
