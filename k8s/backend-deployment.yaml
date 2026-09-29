@@ -58,7 +58,7 @@ spec:
                   key: PAYMENTS_API_KEY
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /readyz
               port: http
             periodSeconds: 10
           livenessProbe:
