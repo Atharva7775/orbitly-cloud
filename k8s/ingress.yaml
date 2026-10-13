@@ -6,6 +6,8 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     nginx.ingress.kubernetes.io/proxy-body-size: "2m"
+    # Login can take several seconds on a cold pod (bcrypt); 5s cut it off.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
 spec:
   ingressClassName: nginx
   tls:
