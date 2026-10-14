@@ -22,7 +22,7 @@ spec:
       containers:
         - name: worker
           # Same image as the API; consumes order.placed and user.signed_up.
-          image: ghcr.io/atharva7775/orbitly-backend:1.1.0
+          image: ghcr.io/atharva7775/orbitly-backend:1.1.1
           command: ["python", "-m", "app.workers.runner"]
           envFrom:
             - configMapRef:
