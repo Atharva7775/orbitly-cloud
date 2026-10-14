@@ -27,7 +27,7 @@ spec:
       initContainers:
         # Applies orbitly-backend/migrations/*.sql before the API starts.
         - name: migrate
-          image: ghcr.io/atharva7775/orbitly-backend:1.1.0
+          image: ghcr.io/atharva7775/orbitly-backend:1.1.1
           command: ["python", "-m", "app.migrate"]
           env:
             - name: DATABASE_URL
@@ -38,7 +38,7 @@ spec:
       containers:
         - name: backend
           # Built by orbitly-backend/.github/workflows/deploy.yml
-          image: ghcr.io/atharva7775/orbitly-backend:1.1.0
+          image: ghcr.io/atharva7775/orbitly-backend:1.1.1
           ports:
             - name: http
               containerPort: 8000
