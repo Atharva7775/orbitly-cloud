@@ -1,0 +1,9 @@
+environment         = "prod-eu"
+region              = "eu-central-1"
+vpc_cidr            = "10.50.0.0/16"
+availability_zones  = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
+db_instance_class   = "db.r6g.large"
+db_multi_az         = true
+node_instance_types = ["m6i.large"]
+node_desired_size   = 3
+node_max_size       = 6

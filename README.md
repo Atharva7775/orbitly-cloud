@@ -31,5 +31,6 @@ docker compose up --build
 | Branch | Environment | tfvars |
 | --- | --- | --- |
 | `main` | prod (us-east-1) | `envs/prod.tfvars` |
+| `prod-eu` | prod-eu (eu-central-1) | `envs/prod-eu.tfvars` |
 | `staging` | staging | `envs/staging.tfvars` |
 | `qa` | qa | `envs/qa.tfvars` |
