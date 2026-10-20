@@ -11,10 +11,10 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts: [shop.orbitly.example, api.orbitly.example]
+    - hosts: [eu.shop.orbitly.example, eu.api.orbitly.example]
       secretName: orbitly-tls
   rules:
-    - host: shop.orbitly.example
+    - host: eu.shop.orbitly.example
       http:
         paths:
           - path: /
@@ -24,7 +24,7 @@ spec:
                 name: orbitly-frontend
                 port:
                   name: http
-    - host: api.orbitly.example
+    - host: eu.api.orbitly.example
       http:
         paths:
           - path: /api

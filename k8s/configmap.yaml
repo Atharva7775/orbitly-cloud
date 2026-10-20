@@ -5,10 +5,11 @@ metadata:
   namespace: orbitly
 data:
   ORBITLY_ENV: "production"
+  DATA_REGION: "eu"
   REDIS_URL: "redis://orbitly-redis:6379/0"
   SESSION_TTL_MINUTES: "720"
   BCRYPT_ROUNDS: "12"
-  CORS_ORIGINS: "https://shop.orbitly.example"
+  CORS_ORIGINS: "https://eu.shop.orbitly.example"
   PAYMENTS_API_URL: "https://api.paystream-gateway.example"
-  SMTP_HOST: "email-smtp.us-east-1.amazonaws.com"
+  SMTP_HOST: "email-smtp.eu-central-1.amazonaws.com"
   SMTP_PORT: "587"
