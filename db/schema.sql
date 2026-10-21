@@ -1,4 +1,4 @@
--- Orbitly production schema (Postgres 16), as of migration 0004_token_sessions.
+-- Orbitly production schema (Postgres 16), as of migration 0005_order_cancellation.
 -- Generated from db/migrations/ and kept in review so DBAs can diff schema changes.
 -- orbitly-backend applies the same files from its migrations/ directory.
 
@@ -52,7 +52,10 @@ CREATE TABLE orders (
     promo_code        varchar(32),
     shipping_address  jsonb NOT NULL,
     idempotency_key   varchar(64) UNIQUE,
-    created_at        timestamptz NOT NULL DEFAULT now()
+    created_at        timestamptz NOT NULL DEFAULT now(),
+    cancelled_at      timestamptz,
+    cancel_reason     varchar(50),
+    CONSTRAINT orders_cancel_consistency CHECK ((status = 'cancelled') = (cancelled_at IS NOT NULL))
 );
 CREATE INDEX orders_user_id_created_at_idx ON orders (user_id, created_at DESC);
 
