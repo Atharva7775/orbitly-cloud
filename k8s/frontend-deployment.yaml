@@ -27,7 +27,7 @@ spec:
       containers:
         - name: frontend
           # Built by orbitly-frontend/.github/workflows/deploy.yml
-          image: ghcr.io/atharva7775/orbitly-frontend:1.0.0
+          image: ghcr.io/atharva7775/orbitly-frontend:1.1.1
           ports:
             - name: http
               containerPort: 3000
